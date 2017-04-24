@@ -80,6 +80,50 @@ class Game {
         this.state = GameStates.gameOn
     }
 
+    private showVictory = () => {
+        this.state = GameStates.victory
+        this.game.add.audio('warble').play()
+
+        // Cleanup
+        for(var i in this.manna){
+            this.manna[i].sprite.destroy()
+        }
+        this.manna = []
+        for(var i in this.comets){
+            this.comets[i].sprite.destroy()
+        }
+        this.comets = []
+
+        // Show stupid victory message
+        this.title = this.makeLabel(451, 100, 'DEITY! YOU WIN!')
+        this.title.fontSize = 36
+        this.title.fill = 'yellow'
+        this.title.align = 'center'
+        this.title.strokeThickness = 4
+
+        this.subTitle = this.makeLabel(451, 150, 'Your little world survived big dangers.')
+        this.subTitle.fontSize = 22
+        this.subTitle.fill = 'yellow'
+        this.subTitle.align = 'center'
+        this.subTitle.strokeThickness = 4
+
+        this.subSubTitle = this.makeLabel(451, 180, 'But the Big Boss decided it\'s time for an Apocalypse')
+        this.subSubTitle.fontSize = 22
+        this.subSubTitle.fill = 'yellow'
+        this.subSubTitle.align = 'center'
+        this.subSubTitle.strokeThickness = 4
+
+        this.subSubSubTitle = this.makeLabel(451, 320, 'It\'s The End of the World As We Know It.')
+        this.subSubSubTitle.fontSize = 20
+        this.subSubSubTitle.alpha = 0
+        this.subSubSubTitle.stroke = 'white'
+        this.subSubSubTitle.fill = 'black'
+
+        var tween = this.game.add.tween(this.subSubSubTitle).to({ alpha: 1 }, 500, "Linear", true)
+        tween.yoyo(true, 0).repeat(-1)
+
+    }
+
     private updateAchievement = () => {
         var ach = this.planet.getAchievement()
         this.achievementText.setText(ach.description)
@@ -99,6 +143,7 @@ class Game {
         this.game.load.audio('hurt', 'assets/hurt.wav')
         this.game.load.audio('coin', 'assets/coin.wav')
         this.game.load.audio('thrum', 'assets/thrum.wav')
+        this.game.load.audio('warble', 'assets/warble.wav')
     }
     public create = () => {
 
@@ -130,7 +175,7 @@ class Game {
         this.subSubSubTitle.stroke = 'white'
         this.subSubSubTitle.fill = 'black'
 
-        var tween = this.game.add.tween(this.subSubSubTitle).to({alpha: 1}, 500, "Linear", true)
+        var tween = this.game.add.tween(this.subSubSubTitle).to({ alpha: 1 }, 500, "Linear", true)
         tween.yoyo(true, 0).repeat(-1)
 
         this.cursors = this.game.input.keyboard.createCursorKeys()
@@ -204,6 +249,11 @@ class Game {
                 else if (this.cursors.right.isDown) {
                     this.planet.sprite.body.velocity.x += 2
                 }
+
+                // Check for victory
+                if(this.planet.getAchievement() === achievements[0]){
+                    this.showVictory()
+                }
                 break;
             case GameStates.victory:
                 break
@@ -212,9 +262,6 @@ class Game {
             default:
                 break;
         }
-
-
-
 
     }
 
@@ -225,8 +272,8 @@ class Game {
             var cv = Math.min(temperament / 20, 1) * 100
             var cvRect = new Phaser.Rectangle(876, 31, cv, 18)
             var cvColor
-            if(temperament < 5) cvColor = 'red'
-            else if(temperament < 10) cvColor = 'yellow'
+            if (temperament < 5) cvColor = 'red'
+            else if (temperament < 10) cvColor = 'yellow'
             else cvColor = 'lime'
             this.game.debug.geom(cvRect, cvColor, true)
             this.game.debug.geom(calvins, '#cccccc', false)
@@ -238,15 +285,15 @@ class Game {
             var temperatureAbs = Math.abs(temperature)
             var kv = temperature * 50
             kv = (kv < 0) ? Math.max(-50, kv) : Math.min(50, kv)
-            var kvRect = new Phaser.Rectangle(876+50, 521, kv, 18)
+            var kvRect = new Phaser.Rectangle(876 + 50, 521, kv, 18)
             var kvColor
-            if(temperatureAbs < 0.4) kvColor = 'lime'
+            if (temperatureAbs < 0.4) kvColor = 'lime'
             else if (temperatureAbs < 0.6) kvColor = 'yellow'
             else kvColor = 'red'
             this.game.debug.geom(kvRect, kvColor, true)
             this.game.debug.geom(kelvins, '#cccccc', false)
-            
-            this.game.debug.text(this.planet.temperature.toFixed(2), 875, 540)
+
+            //this.game.debug.text(this.planet.temperature.toFixed(2), 875, 540)
 
         }
     }

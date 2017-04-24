@@ -48,7 +48,7 @@ achievements.push({ value: 1000, description: 'Fishsticks', blurb: 'Time for a f
 achievements.push({ value: 1200, description: 'Creepy Crawlers', blurb: 'Little lifeforms have crawled onto the tiny shore.' });
 achievements.push({ value: 1500, description: 'Thunder Lizards', blurb: 'These tyrannical monsters seem oversized for this minuscule sphere.' });
 achievements.push({ value: 2250, description: 'Clever Monkeys', blurb: 'Ook! Ook! The inhabitants of this little rock are banging littler rocks together.' });
-achievements.push({ value: 2800, description: 'Prattling Philosophers', blurb: 'Latinate cogitators aduancing knouuledge across this diminutive orb.' });
+achievements.push({ value: 2800, description: 'Prattling Philosophers', blurb: 'Uuell-read Latin cogitators aduance knouuledge across this diminutive orb.' });
 achievements.push({ value: 3400, description: 'Crazy Mad Scientists', blurb: 'Men in white lab coats burn Bunsen and coil Tesla in their zany experiments.' });
 achievements.push({ value: 3800, description: 'One Billion Cat Memes', blurb: 'Ceiling cat smiles upon ur teensy world. U can haz hugz.' });
 achievements.push({ value: 4500, description: 'Singularity Next Sunday', blurb: 'How will the technological apotheosis transfigure this pint-sized world?' });
@@ -103,6 +103,40 @@ var Game = (function () {
             _this.game.world.bringToTop(_this.deity);
             _this.state = GameStates.gameOn;
         };
+        this.showVictory = function () {
+            _this.state = GameStates.victory;
+            _this.game.add.audio('warble').play();
+            // Cleanup
+            for (var i in _this.manna) {
+                _this.manna[i].sprite.destroy();
+            }
+            _this.manna = [];
+            for (var i in _this.comets) {
+                _this.comets[i].sprite.destroy();
+            }
+            _this.comets = [];
+            // Show stupid victory message
+            _this.title = _this.makeLabel(451, 100, 'DEITY! YOU WIN!');
+            _this.title.fontSize = 36;
+            _this.title.fill = 'yellow';
+            _this.title.align = 'center';
+            _this.title.strokeThickness = 4;
+            _this.subTitle = _this.makeLabel(451, 150, 'Your little world survived big dangers.');
+            _this.subTitle.fontSize = 22;
+            _this.subTitle.fill = 'yellow';
+            _this.subTitle.align = 'center';
+            _this.subTitle.strokeThickness = 4;
+            _this.subSubTitle = _this.makeLabel(451, 180, 'But the Big Boss decided it\'s time for an Apocalypse');
+            _this.subSubTitle.fontSize = 22;
+            _this.subSubTitle.fill = 'yellow';
+            _this.subSubTitle.align = 'center';
+            _this.subSubTitle.strokeThickness = 4;
+            _this.subSubSubTitle = _this.makeLabel(451, 320, 'It\'s The End of the World As We Know It.');
+            _this.subSubSubTitle.fontSize = 20;
+            _this.subSubSubTitle.alpha = 0;
+            _this.subSubSubTitle.stroke = 'white';
+            _this.subSubSubTitle.fill = 'black';
+        };
         this.updateAchievement = function () {
             var ach = _this.planet.getAchievement();
             _this.achievementText.setText(ach.description);
@@ -120,6 +154,7 @@ var Game = (function () {
             _this.game.load.audio('hurt', 'assets/hurt.wav');
             _this.game.load.audio('coin', 'assets/coin.wav');
             _this.game.load.audio('thrum', 'assets/thrum.wav');
+            _this.game.load.audio('warble', 'assets/warble.wav');
         };
         this.create = function () {
             var background = _this.game.add.sprite(0, 288, 'space');
@@ -207,6 +242,10 @@ var Game = (function () {
                     else if (_this.cursors.right.isDown) {
                         _this.planet.sprite.body.velocity.x += 2;
                     }
+                    // Check for victory
+                    if (_this.planet.getAchievement() === achievements[0]) {
+                        _this.showVictory();
+                    }
                     break;
                 case GameStates.victory:
                     break;
@@ -247,7 +286,6 @@ var Game = (function () {
                     kvColor = 'red';
                 _this.game.debug.geom(kvRect, kvColor, true);
                 _this.game.debug.geom(kelvins, '#cccccc', false);
-                _this.game.debug.text(_this.planet.temperature.toFixed(2), 875, 540);
             }
         };
         this.game = new Phaser.Game(1024, 576, Phaser.CANVAS, elementId, {
