@@ -24,7 +24,7 @@ class Manna{
     }
 
     public onCollision = (body, bodyB, shapeA, shapeB, equation) => {
-        if(body.key === 'planet'){
+        if(body && body.key && body.key === 'planet'){
             this.isDead = true
             if(this.collisionCallback) this.collisionCallback()
         }

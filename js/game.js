@@ -52,27 +52,56 @@ achievements.push({ value: 3800, description: 'One Billion Cat Memes', blurb: 'C
 achievements.push({ value: 4500, description: 'Singularity Next Sunday', blurb: 'How will the technological apotheosis transfigure this pint-sized world?' });
 achievements.push({ value: 5500, description: 'It\'s the Apocalypse', blurb: 'It was a small world, after all.' });
 achievements.reverse();
+var GameStates;
+(function (GameStates) {
+    GameStates[GameStates["titleScreen"] = 0] = "titleScreen";
+    GameStates[GameStates["gameOn"] = 1] = "gameOn";
+    GameStates[GameStates["victory"] = 2] = "victory";
+    GameStates[GameStates["timeOut"] = 3] = "timeOut";
+})(GameStates || (GameStates = {}));
 var Game = (function () {
     function Game(elementId) {
         var _this = this;
         this.comets = [];
         this.manna = [];
+        this.state = GameStates.titleScreen;
+        this.makeLabel = function (x, y, text) {
+            var lbl = _this.game.add.text(x, y, text);
+            lbl.stroke = '#000000';
+            lbl.fill = '#ffffff';
+            lbl.strokeThickness = 2;
+            lbl.fontSize = 16;
+            return lbl;
+        };
         this.createUI = function () {
-            var makeLabel = function (x, y, text) {
-                var lbl = _this.game.add.text(x, y, text);
-                lbl.stroke = '#000000';
-                lbl.fill = '#ffffff';
-                lbl.strokeThickness = 2;
-                lbl.fontSize = 16;
-                return lbl;
-            };
-            _this.temperatureLabel = makeLabel(875, 500, 'TEMPERATURE');
-            _this.temperamentLabel = makeLabel(875, 10, 'TEMPERAMENT');
-            _this.achievementLabel = makeLabel(10, 500, 'PINNACLE ACHIEVEMENT');
-            _this.achievementText = makeLabel(10, 520, '- UNKNOWN -');
+            _this.title.destroy();
+            _this.subTitle.destroy();
+            _this.subSubTitle.destroy();
+            _this.subSubSubTitle.destroy();
+            _this.temperatureLabel = _this.makeLabel(875, 500, 'TEMPERATURE');
+            _this.temperamentLabel = _this.makeLabel(875, 10, 'TEMPERAMENT');
+            _this.achievementLabel = _this.makeLabel(10, 500, 'PINNACLE ACHIEVEMENT');
+            _this.achievementText = _this.makeLabel(10, 520, '- UNKNOWN -');
             _this.achievementText.fontSize = 12;
-            _this.achievementBlurb = makeLabel(10, 540, '- UNKNOWN -');
+            _this.achievementBlurb = _this.makeLabel(10, 540, '- UNKNOWN -');
             _this.achievementBlurb.fontSize = 12;
+        };
+        this.startGame = function () {
+            _this.game.add.audio('thrum').play();
+            _this.game.physics.startSystem(Phaser.Physics.P2JS);
+            _this.game.physics.p2.gravity.y = 10;
+            _this.game.physics.p2.world.defaultContactMaterial.friction = 0.3;
+            _this.game.physics.p2.world.setGlobalStiffness(1e5);
+            _this.game.physics.p2.setBoundsToWorld(false, false, false, false);
+            var comet = new Comet(_this.game, _this.playKaboom);
+            _this.comets.push(comet);
+            _this.planet = new Planet(_this.game, _this.playWoot, _this.playFail);
+            _this.createUI();
+            _this.updateAchievement();
+            _this.game.world.bringToTop(_this.deity);
+            _this.state = GameStates.gameOn;
+        };
+        this.updateAchievement = function () {
             var ach = _this.planet.getAchievement();
             _this.achievementText.setText(ach.description);
             _this.achievementBlurb.setText(ach.blurb);
@@ -88,24 +117,31 @@ var Game = (function () {
             _this.game.load.audio('achieve', 'assets/achieve.wav');
             _this.game.load.audio('hurt', 'assets/hurt.wav');
             _this.game.load.audio('coin', 'assets/coin.wav');
+            _this.game.load.audio('thrum', 'assets/thrum.wav');
         };
         this.create = function () {
-            _this.game.physics.startSystem(Phaser.Physics.P2JS);
-            _this.game.physics.p2.gravity.y = 10;
-            _this.game.physics.p2.world.defaultContactMaterial.friction = 0.3;
-            _this.game.physics.p2.world.setGlobalStiffness(1e5);
-            var worldMaterial = _this.game.physics.p2.createMaterial('worldMaterial');
-            var ballMaterial = _this.game.physics.p2.createMaterial('ballMaterial');
             var background = _this.game.add.sprite(0, 288, 'space');
             var backgroundClouds = _this.game.add.sprite(0, 0, 'clouds');
             _this.deity = _this.game.add.sprite(-10, 100, 'dude');
-            var comet = new Comet(_this.game, _this.playKaboom);
-            _this.comets.push(comet);
-            _this.planet = new Planet(_this.game, _this.playWoot, _this.playFail);
-            _this.game.physics.p2.setWorldMaterial(worldMaterial, false, false, false, false);
-            _this.game.physics.p2.setBoundsToWorld(false, false, false, false);
+            _this.title = _this.makeLabel(451, 100, 'DEITY IN TRAINING');
+            _this.title.fontSize = 36;
+            _this.title.fill = 'yellow';
+            _this.title.align = 'center';
+            _this.title.strokeThickness = 4;
+            _this.subTitle = _this.makeLabel(451, 150, 'The Big Boss is Away');
+            _this.subTitle.fontSize = 22;
+            _this.subTitle.fill = 'yellow';
+            _this.subTitle.align = 'center';
+            _this.subTitle.strokeThickness = 4;
+            _this.subSubTitle = _this.makeLabel(451, 180, 'Steer this Small World through its Tribulations');
+            _this.subSubTitle.fontSize = 22;
+            _this.subSubTitle.fill = 'yellow';
+            _this.subSubTitle.align = 'center';
+            _this.subSubTitle.strokeThickness = 4;
+            _this.subSubSubTitle = _this.makeLabel(451, 320, 'Press (Space) to Play');
+            _this.subSubSubTitle.fontSize = 20;
             _this.cursors = _this.game.input.keyboard.createCursorKeys();
-            _this.createUI();
+            _this.game.world.bringToTop(_this.deity);
         };
         this.playKaboom = function () {
             _this.game.add.audio('explode').play();
@@ -129,35 +165,59 @@ var Game = (function () {
         };
         this.rollDie = function (sides) { return Math.floor(Math.random() * sides); };
         this.update = function () {
-            // Update comets
-            for (var i in _this.comets) {
-                _this.comets[i].update();
-            }
-            if ((_this.comets.length < 4) && _this.rollDie(200) === 0) {
-                _this.comets.push(new Comet(_this.game, _this.playKaboom));
-            }
-            _this.comets = _this.comets.filter(function (i) { return !i.isDead; });
-            // Update manna
-            for (var i in _this.manna) {
-                _this.manna[i].update();
-            }
-            _this.manna = _this.manna.filter(function (i) { return !i.isDead; });
-            if (_this.rollDie(200) === 0)
-                _this.manna.push(new Manna(_this.game, _this.playCoin));
+            // Always update deity
             _this.deity.x = 25 * Math.cos(_this.t) + 10;
             _this.deity.y = 10 * Math.sin(_this.t) + 80;
             _this.t += Math.random() / 50;
-            _this.planet.update();
-            if (_this.cursors.left.isDown) {
-                _this.planet.sprite.body.velocity.x -= 2;
-            }
-            else if (_this.cursors.right.isDown) {
-                _this.planet.sprite.body.velocity.x += 2;
+            switch (_this.state) {
+                case GameStates.titleScreen:
+                    if (_this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+                        // TODO: spiffy cool startup sound
+                        _this.startGame();
+                    }
+                    break;
+                case GameStates.gameOn:
+                    // Update comets
+                    for (var i in _this.comets) {
+                        _this.comets[i].update();
+                    }
+                    if ((_this.comets.length < 4) && _this.rollDie(200) === 0) {
+                        _this.comets.push(new Comet(_this.game, _this.playKaboom));
+                    }
+                    _this.comets = _this.comets.filter(function (i) { return !i.isDead; });
+                    // Update manna
+                    for (var i in _this.manna) {
+                        _this.manna[i].update();
+                    }
+                    _this.manna = _this.manna.filter(function (i) { return !i.isDead; });
+                    if (_this.rollDie(200) === 0)
+                        _this.manna.push(new Manna(_this.game, _this.playCoin));
+                    // Update planet
+                    _this.planet.update();
+                    if (_this.cursors.left.isDown) {
+                        _this.planet.sprite.body.velocity.x -= 2;
+                    }
+                    else if (_this.cursors.right.isDown) {
+                        _this.planet.sprite.body.velocity.x += 2;
+                    }
+                    break;
+                case GameStates.victory:
+                    break;
+                case GameStates.timeOut:
+                    break;
+                default:
+                    break;
             }
         };
         this.render = function () {
-            _this.game.debug.text(_this.planet.temperature.toFixed(2), 875, 540);
-            _this.game.debug.text(_this.planet.temperament.toFixed(2), 875, 50);
+            if (_this.state === GameStates.gameOn) {
+                var calvins = new Phaser.Rectangle(875, 30, 100, 20);
+                _this.game.debug.geom(calvins, '#cccccc', false);
+                _this.game.debug.text(_this.planet.temperament.toFixed(2), 875, 50);
+                var kelvins = new Phaser.Rectangle(875, 520, 100, 20);
+                _this.game.debug.geom(kelvins, '#cccccc', false);
+                _this.game.debug.text(_this.planet.temperature.toFixed(2), 875, 540);
+            }
         };
         this.game = new Phaser.Game(1024, 576, Phaser.CANVAS, elementId, {
             preload: this.preload,
@@ -178,7 +238,7 @@ var Manna = (function () {
     function Manna(game, collisionCallback) {
         var _this = this;
         this.onCollision = function (body, bodyB, shapeA, shapeB, equation) {
-            if (body.key === 'planet') {
+            if (body && body.key && body.key === 'planet') {
                 _this.isDead = true;
                 if (_this.collisionCallback)
                     _this.collisionCallback();
@@ -227,7 +287,7 @@ var Planet = (function () {
                 _this.achievement -= (1 + _this.temperament / 10);
             }
             // Decay temperament
-            _this.temperament = Math.max(_this.temperament * 0.999, 0.05);
+            _this.temperament = Math.min(Math.max(_this.temperament * 0.999, 0.1), 20);
             if (_this.achievement < 0)
                 _this.achievement = 0;
             _this.achievement += _this.temperament / 10;

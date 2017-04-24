@@ -25,8 +25,6 @@ achievements.reverse()
 enum GameStates{
     titleScreen = 0,
     gameOn = 1,
-    paused = 2,
-    victory = 3,
-    defeat = 4,
-    timeOut = 5
+    victory = 2,
+    timeOut = 3
 }
