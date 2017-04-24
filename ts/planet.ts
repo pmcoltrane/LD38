@@ -1,4 +1,7 @@
 class Planet{
+    private levelUp:Function
+    private levelDown:Function
+
     public sprite:Phaser.Sprite
     public material:Phaser.Physics.P2.Material
 
@@ -7,12 +10,20 @@ class Planet{
 
     public achievement:number
 
+    private lastAchievement:Achievement
+
     public getAchievementDescription():string{
         for(var i in achievements) if(achievements[i].value <= this.achievement) return achievements[i].description
         return 'In-Game Fail'
     }
 
-    constructor(game:Phaser.Game){
+    public getAchievement():Achievement{
+        for(var i in achievements) if (achievements[i].value <= this.achievement) return achievements[i]
+        return achievements[achievements.length - 1]
+    }
+
+    constructor(game:Phaser.Game, levelUp:Function, levelDown:Function){
+        this.lastAchievement = achievements[achievements.length - 1]
         var ballMaterial = game.physics.p2.createMaterial('ballMaterial')
 
         var sprite = game.add.sprite(512, 288, 'ball')
@@ -27,6 +38,8 @@ class Planet{
         sprite.body.setCircle(64)
         sprite.body.fixedY = true
 
+        this.levelUp = levelUp
+        this.levelDown = levelDown
         this.sprite = sprite
         this.material = ballMaterial
         this.temperature = 0
@@ -47,7 +60,7 @@ class Planet{
         var tAbs = Math.abs(this.temperature)
         if((0.4 <= tAbs) && (tAbs <= 0.6)){
             // A little extreme boosts temperament
-            this.temperament = Math.min(this.temperament * 1.002, 10)
+            this.temperament = Math.min(this.temperament * 1.002, 6)
         }
         else if(tAbs > 0.6){
             // But too extreme kills achievement
@@ -71,6 +84,19 @@ class Planet{
             this.sprite.body.velocity.x = 0
         }
 
+        // Update achievement
+        var ach = this.getAchievement()
+        if(ach != this.lastAchievement){
+            if(this.lastAchievement.value > ach.value){
+                // we dropped a level or more
+                if(this.levelDown) this.levelDown()
+            }
+            else{
+                // we leveled up
+                if(this.levelUp) this.levelUp()
+            }
+            this.lastAchievement = ach
+        }
     }
 
 }
