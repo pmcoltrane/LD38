@@ -1,0 +1,6 @@
+{
+    "compilerOptions": {
+        "outFile": "js/game.js"
+    },
+    "include": ["ts/*"]
+}
