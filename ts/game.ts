@@ -16,6 +16,8 @@ class Game {
 
     private t:number
 
+    public state: GameStates = GameStates.titleScreen
+
     constructor(elementId: string) {
         this.game = new Phaser.Game(1024, 576, Phaser.CANVAS, elementId, {
             preload: this.preload,
@@ -46,7 +48,13 @@ class Game {
         
         this.achievementBlurb =makeLabel(10, 540, '- UNKNOWN -')
         this.achievementBlurb.fontSize = 12
+    }
 
+    private startGame = () => {
+
+    }
+
+    private updateAchievement = () => {
         var ach = this.planet.getAchievement()
         this.achievementText.setText(ach.description)
         this.achievementBlurb.setText(ach.blurb)

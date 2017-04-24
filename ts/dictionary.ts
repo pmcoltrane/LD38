@@ -21,3 +21,12 @@ achievements.push({value: 3800, description: 'One Billion Cat Memes', blurb: 'Ce
 achievements.push({value: 4500, description: 'Singularity Next Sunday', blurb: 'How will the technological apotheosis transfigure this pint-sized world?'})
 achievements.push({value: 5500, description: 'It\'s the Apocalypse', blurb: 'It was a small world, after all.'})
 achievements.reverse()
+
+enum GameStates{
+    titleScreen = 0,
+    gameOn = 1,
+    paused = 2,
+    victory = 3,
+    defeat = 4,
+    timeOut = 5
+}

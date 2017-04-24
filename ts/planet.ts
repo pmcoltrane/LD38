@@ -69,7 +69,7 @@ class Planet{
         }
 
         // Decay temperament
-        this.temperament = Math.max(this.temperament * 0.999, 0.05)
+        this.temperament = Math.min(Math.max(this.temperament * 0.999, 0.1), 20)
         if(this.achievement <0) this.achievement = 0
         this.achievement += this.temperament / 10
 
