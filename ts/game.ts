@@ -126,6 +126,12 @@ class Game {
 
         this.subSubSubTitle = this.makeLabel(451, 320, 'Press (Space) to Play')
         this.subSubSubTitle.fontSize = 20
+        this.subSubSubTitle.alpha = 0
+        this.subSubSubTitle.stroke = 'white'
+        this.subSubSubTitle.fill = 'black'
+
+        var tween = this.game.add.tween(this.subSubSubTitle).to({alpha: 1}, 500, "Linear", true)
+        tween.yoyo(true, 0).repeat(-1)
 
         this.cursors = this.game.input.keyboard.createCursorKeys()
         this.game.world.bringToTop(this.deity)
@@ -214,12 +220,32 @@ class Game {
 
     public render = () => {
         if (this.state === GameStates.gameOn) {
-            var calvins = new Phaser.Rectangle(875, 30, 100, 20)
+            var calvins = new Phaser.Rectangle(875, 30, 102, 20)
+            var temperament = this.planet.temperament
+            var cv = Math.min(temperament / 20, 1) * 100
+            var cvRect = new Phaser.Rectangle(876, 31, cv, 18)
+            var cvColor
+            if(temperament < 5) cvColor = 'red'
+            else if(temperament < 10) cvColor = 'yellow'
+            else cvColor = 'lime'
+            this.game.debug.geom(cvRect, cvColor, true)
             this.game.debug.geom(calvins, '#cccccc', false)
-            this.game.debug.text(this.planet.temperament.toFixed(2), 875, 50)
 
-            var kelvins = new Phaser.Rectangle(875, 520, 100, 20)
+            //this.game.debug.text(this.planet.temperament.toFixed(2), 875, 50)
+
+            var kelvins = new Phaser.Rectangle(875, 520, 102, 20)
+            var temperature = this.planet.temperature
+            var temperatureAbs = Math.abs(temperature)
+            var kv = temperature * 50
+            kv = (kv < 0) ? Math.max(-50, kv) : Math.min(50, kv)
+            var kvRect = new Phaser.Rectangle(876+50, 521, kv, 18)
+            var kvColor
+            if(temperatureAbs < 0.4) kvColor = 'lime'
+            else if (temperatureAbs < 0.6) kvColor = 'yellow'
+            else kvColor = 'red'
+            this.game.debug.geom(kvRect, kvColor, true)
             this.game.debug.geom(kelvins, '#cccccc', false)
+            
             this.game.debug.text(this.planet.temperature.toFixed(2), 875, 540)
 
         }

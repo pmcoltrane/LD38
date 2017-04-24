@@ -11,6 +11,8 @@ var Comet = (function () {
         this.update = function () {
             if (_this.sprite.y > 660)
                 _this.isDead = true;
+            if (_this.sprite.y < 288)
+                _this.isDead = true;
             if (_this.sprite.x > 1024)
                 _this.isDead = true;
             if (_this.isDead)
@@ -140,6 +142,11 @@ var Game = (function () {
             _this.subSubTitle.strokeThickness = 4;
             _this.subSubSubTitle = _this.makeLabel(451, 320, 'Press (Space) to Play');
             _this.subSubSubTitle.fontSize = 20;
+            _this.subSubSubTitle.alpha = 0;
+            _this.subSubSubTitle.stroke = 'white';
+            _this.subSubSubTitle.fill = 'black';
+            var tween = _this.game.add.tween(_this.subSubSubTitle).to({ alpha: 1 }, 500, "Linear", true);
+            tween.yoyo(true, 0).repeat(-1);
             _this.cursors = _this.game.input.keyboard.createCursorKeys();
             _this.game.world.bringToTop(_this.deity);
         };
@@ -211,10 +218,34 @@ var Game = (function () {
         };
         this.render = function () {
             if (_this.state === GameStates.gameOn) {
-                var calvins = new Phaser.Rectangle(875, 30, 100, 20);
+                var calvins = new Phaser.Rectangle(875, 30, 102, 20);
+                var temperament = _this.planet.temperament;
+                var cv = Math.min(temperament / 20, 1) * 100;
+                var cvRect = new Phaser.Rectangle(876, 31, cv, 18);
+                var cvColor;
+                if (temperament < 5)
+                    cvColor = 'red';
+                else if (temperament < 10)
+                    cvColor = 'yellow';
+                else
+                    cvColor = 'lime';
+                _this.game.debug.geom(cvRect, cvColor, true);
                 _this.game.debug.geom(calvins, '#cccccc', false);
-                _this.game.debug.text(_this.planet.temperament.toFixed(2), 875, 50);
-                var kelvins = new Phaser.Rectangle(875, 520, 100, 20);
+                //this.game.debug.text(this.planet.temperament.toFixed(2), 875, 50)
+                var kelvins = new Phaser.Rectangle(875, 520, 102, 20);
+                var temperature = _this.planet.temperature;
+                var temperatureAbs = Math.abs(temperature);
+                var kv = temperature * 50;
+                kv = (kv < 0) ? Math.max(-50, kv) : Math.min(50, kv);
+                var kvRect = new Phaser.Rectangle(876 + 50, 521, kv, 18);
+                var kvColor;
+                if (temperatureAbs < 0.4)
+                    kvColor = 'lime';
+                else if (temperatureAbs < 0.6)
+                    kvColor = 'yellow';
+                else
+                    kvColor = 'red';
+                _this.game.debug.geom(kvRect, kvColor, true);
                 _this.game.debug.geom(kelvins, '#cccccc', false);
                 _this.game.debug.text(_this.planet.temperature.toFixed(2), 875, 540);
             }

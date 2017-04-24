@@ -37,6 +37,7 @@ class Comet{
 
     public update = () => {
         if(this.sprite.y > 660) this.isDead = true
+        if(this.sprite.y < 288) this.isDead = true
         if(this.sprite.x > 1024) this.isDead = true
         if(this.isDead) this.sprite.destroy()
     }
