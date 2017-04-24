@@ -15,7 +15,7 @@ achievements.push({value: 1000, description: 'Fishsticks', blurb: 'Time for a fi
 achievements.push({value: 1200, description: 'Creepy Crawlers', blurb: 'Little lifeforms have crawled onto the tiny shore.'})
 achievements.push({value: 1500, description: 'Thunder Lizards', blurb: 'These tyrannical monsters seem oversized for this minuscule sphere.'})
 achievements.push({value: 2250, description: 'Clever Monkeys', blurb: 'Ook! Ook! The inhabitants of this little rock are banging littler rocks together.'})
-achievements.push({value: 2800, description: 'Prattling Philosophers', blurb: 'Latinate cogitatorsadvancing knowledge across this diminutive orb.'})
+achievements.push({value: 2800, description: 'Prattling Philosophers', blurb: 'Latinate cogitators aduancing knouuledge across this diminutive orb.'})
 achievements.push({value: 3400, description: 'Crazy Mad Scientists', blurb: 'Men in white lab coats burn Bunsen and coil Tesla in their zany experiments.'})
 achievements.push({value: 3800, description: 'One Billion Cat Memes', blurb: 'Ceiling cat smiles upon ur teensy world. U can haz hugz.'})
 achievements.push({value: 4500, description: 'Singularity Next Sunday', blurb: 'How will the technological apotheosis transfigure this pint-sized world?'})

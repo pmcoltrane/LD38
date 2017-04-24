@@ -37,6 +37,7 @@ class Planet{
         sprite.body.angularDamping = 0
         sprite.body.setCircle(64)
         sprite.body.fixedY = true
+        sprite.body.key = 'planet'
 
         this.levelUp = levelUp
         this.levelDown = levelDown
@@ -60,7 +61,7 @@ class Planet{
         var tAbs = Math.abs(this.temperature)
         if((0.4 <= tAbs) && (tAbs <= 0.6)){
             // A little extreme boosts temperament
-            this.temperament = Math.min(this.temperament * 1.002, 6)
+            this.temperament += (this.temperament * 0.002)
         }
         else if(tAbs > 0.6){
             // But too extreme kills achievement

@@ -4,6 +4,7 @@ class Game {
     private planet: Planet
     private cursors: Phaser.CursorKeys
     private comets: Comet[] = []
+    private manna: Manna[] = []
     private deity: Phaser.Sprite
 
     private temperatureLabel: Phaser.Text
@@ -57,9 +58,12 @@ class Game {
         this.game.load.image('ball', 'assets/planet-0.png')
         this.game.load.image('comet', 'assets/comet.png')
         this.game.load.image('dude', 'assets/dude.png')
+        this.game.load.image('heart', 'assets/heart.png')
+
         this.game.load.audio('explode', 'assets/explode.wav')
         this.game.load.audio('achieve', 'assets/achieve.wav')
         this.game.load.audio('hurt', 'assets/hurt.wav')
+        this.game.load.audio('coin', 'assets/coin.wav')
     }
     public create = () => {
         
@@ -105,13 +109,32 @@ class Game {
         this.achievementBlurb.setText(ach.blurb)
     }
 
+    private playCoin = () => {
+        this.game.add.audio('coin').play()
+        this.planet.temperament += 5
+    }
+
+    private rollDie = (sides:number) => Math.floor(Math.random() * sides)
+    
+
     public update = () => {
 
         // Update comets
         for(var i in this.comets){
             this.comets[i].update()
-            if(this.comets[i].isDead) this.comets[i] = new Comet(this.game, this.playKaboom)
         }
+        if((this.comets.length < 4) && this.rollDie(200)=== 0){
+            this.comets.push(new Comet(this.game, this.playKaboom))
+        }
+        this.comets = this.comets.filter(i => !i.isDead)
+
+        // Update manna
+        for(var i in this.manna){
+            this.manna[i].update()
+        }
+        this.manna = this.manna.filter(i => !i.isDead)
+        if(this.rollDie(200) === 0) this.manna.push(new Manna(this.game, this.playCoin))
+
 
         this.deity.x = 25 * Math.cos(this.t) + 10
         this.deity.y = 10 * Math.sin(this.t) + 80

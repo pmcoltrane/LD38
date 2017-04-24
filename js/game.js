@@ -2,9 +2,11 @@ var Comet = (function () {
     function Comet(game, collisionCallback) {
         var _this = this;
         this.onCollision = function (body, bodyB, shapeA, shapeB, equation) {
-            _this.isDead = true;
-            if (_this.collisionCallback)
-                _this.collisionCallback();
+            if (body && body.key && body.key === 'planet') {
+                _this.isDead = true;
+                if (_this.collisionCallback)
+                    _this.collisionCallback();
+            }
         };
         this.update = function () {
             if (_this.sprite.y > 660)
@@ -23,9 +25,7 @@ var Comet = (function () {
         sprite.body.mass = 1;
         sprite.body.setCircle(16, 18, -18);
         sprite.body.fixedRotation = true;
-        //TODO: don't launch all the comets identically
-        var theta = Math.PI / 4;
-        var vel = 100;
+        //FIXME: better calcs. these were trial/error
         sprite.body.velocity.x = 20 + 30 * Math.random();
         sprite.body.velocity.y = -78;
         sprite.body.damping = 0;
@@ -46,7 +46,7 @@ achievements.push({ value: 1000, description: 'Fishsticks', blurb: 'Time for a f
 achievements.push({ value: 1200, description: 'Creepy Crawlers', blurb: 'Little lifeforms have crawled onto the tiny shore.' });
 achievements.push({ value: 1500, description: 'Thunder Lizards', blurb: 'These tyrannical monsters seem oversized for this minuscule sphere.' });
 achievements.push({ value: 2250, description: 'Clever Monkeys', blurb: 'Ook! Ook! The inhabitants of this little rock are banging littler rocks together.' });
-achievements.push({ value: 2800, description: 'Prattling Philosophers', blurb: 'Latinate cogitatorsadvancing knowledge across this diminutive orb.' });
+achievements.push({ value: 2800, description: 'Prattling Philosophers', blurb: 'Latinate cogitators aduancing knouuledge across this diminutive orb.' });
 achievements.push({ value: 3400, description: 'Crazy Mad Scientists', blurb: 'Men in white lab coats burn Bunsen and coil Tesla in their zany experiments.' });
 achievements.push({ value: 3800, description: 'One Billion Cat Memes', blurb: 'Ceiling cat smiles upon ur teensy world. U can haz hugz.' });
 achievements.push({ value: 4500, description: 'Singularity Next Sunday', blurb: 'How will the technological apotheosis transfigure this pint-sized world?' });
@@ -56,6 +56,7 @@ var Game = (function () {
     function Game(elementId) {
         var _this = this;
         this.comets = [];
+        this.manna = [];
         this.createUI = function () {
             var makeLabel = function (x, y, text) {
                 var lbl = _this.game.add.text(x, y, text);
@@ -82,9 +83,11 @@ var Game = (function () {
             _this.game.load.image('ball', 'assets/planet-0.png');
             _this.game.load.image('comet', 'assets/comet.png');
             _this.game.load.image('dude', 'assets/dude.png');
+            _this.game.load.image('heart', 'assets/heart.png');
             _this.game.load.audio('explode', 'assets/explode.wav');
             _this.game.load.audio('achieve', 'assets/achieve.wav');
             _this.game.load.audio('hurt', 'assets/hurt.wav');
+            _this.game.load.audio('coin', 'assets/coin.wav');
         };
         this.create = function () {
             _this.game.physics.startSystem(Phaser.Physics.P2JS);
@@ -120,13 +123,27 @@ var Game = (function () {
             _this.achievementText.setText(ach.description);
             _this.achievementBlurb.setText(ach.blurb);
         };
+        this.playCoin = function () {
+            _this.game.add.audio('coin').play();
+            _this.planet.temperament += 5;
+        };
+        this.rollDie = function (sides) { return Math.floor(Math.random() * sides); };
         this.update = function () {
             // Update comets
             for (var i in _this.comets) {
                 _this.comets[i].update();
-                if (_this.comets[i].isDead)
-                    _this.comets[i] = new Comet(_this.game, _this.playKaboom);
             }
+            if ((_this.comets.length < 4) && _this.rollDie(200) === 0) {
+                _this.comets.push(new Comet(_this.game, _this.playKaboom));
+            }
+            _this.comets = _this.comets.filter(function (i) { return !i.isDead; });
+            // Update manna
+            for (var i in _this.manna) {
+                _this.manna[i].update();
+            }
+            _this.manna = _this.manna.filter(function (i) { return !i.isDead; });
+            if (_this.rollDie(200) === 0)
+                _this.manna.push(new Manna(_this.game, _this.playCoin));
             _this.deity.x = 25 * Math.cos(_this.t) + 10;
             _this.deity.y = 10 * Math.sin(_this.t) + 80;
             _this.t += Math.random() / 50;
@@ -157,6 +174,38 @@ var game;
 function main() {
     game = new Game('');
 }
+var Manna = (function () {
+    function Manna(game, collisionCallback) {
+        var _this = this;
+        this.onCollision = function (body, bodyB, shapeA, shapeB, equation) {
+            if (body.key === 'planet') {
+                _this.isDead = true;
+                if (_this.collisionCallback)
+                    _this.collisionCallback();
+            }
+        };
+        this.update = function () {
+            if (_this.sprite.y > (288 - 16)) {
+                _this.isDead = true;
+            }
+            if (_this.isDead)
+                _this.sprite.destroy();
+        };
+        var x = Math.random() * 1024;
+        var y = -50 * Math.random();
+        var sprite = game.add.sprite(x, y, 'heart');
+        sprite.width = 32;
+        sprite.height = 32;
+        game.physics.p2.enable(sprite);
+        sprite.body.mass = 1;
+        sprite.body.setCircle(16);
+        sprite.body.damping = 0.1;
+        sprite.body.onBeginContact.add(this.onCollision);
+        this.sprite = sprite;
+        this.collisionCallback = collisionCallback;
+    }
+    return Manna;
+}());
 var Planet = (function () {
     function Planet(game, levelUp, levelDown) {
         var _this = this;
@@ -171,7 +220,7 @@ var Planet = (function () {
             var tAbs = Math.abs(_this.temperature);
             if ((0.4 <= tAbs) && (tAbs <= 0.6)) {
                 // A little extreme boosts temperament
-                _this.temperament = Math.min(_this.temperament * 1.002, 10);
+                _this.temperament += (_this.temperament * 0.002);
             }
             else if (tAbs > 0.6) {
                 // But too extreme kills achievement
@@ -222,6 +271,7 @@ var Planet = (function () {
         sprite.body.angularDamping = 0;
         sprite.body.setCircle(64);
         sprite.body.fixedY = true;
+        sprite.body.key = 'planet';
         this.levelUp = levelUp;
         this.levelDown = levelDown;
         this.sprite = sprite;
