@@ -144,9 +144,13 @@ class Game {
         this.game.load.audio('coin', 'assets/coin.wav')
         this.game.load.audio('thrum', 'assets/thrum.wav')
         this.game.load.audio('warble', 'assets/warble.wav')
+
+        this.game.load.audio('theme', 'assets/theme.ogg')
     }
     public create = () => {
-
+        var music = this.game.add.audio('theme', 1, true)
+        music.play()
+        
         var background = this.game.add.sprite(0, 288, 'space')
         var backgroundClouds = this.game.add.sprite(0, 0, 'clouds')
         this.deity = this.game.add.sprite(-10, 100, 'dude')

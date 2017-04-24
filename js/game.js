@@ -136,6 +136,8 @@ var Game = (function () {
             _this.subSubSubTitle.alpha = 0;
             _this.subSubSubTitle.stroke = 'white';
             _this.subSubSubTitle.fill = 'black';
+            var tween = _this.game.add.tween(_this.subSubSubTitle).to({ alpha: 1 }, 500, "Linear", true);
+            tween.yoyo(true, 0).repeat(-1);
         };
         this.updateAchievement = function () {
             var ach = _this.planet.getAchievement();
@@ -155,8 +157,11 @@ var Game = (function () {
             _this.game.load.audio('coin', 'assets/coin.wav');
             _this.game.load.audio('thrum', 'assets/thrum.wav');
             _this.game.load.audio('warble', 'assets/warble.wav');
+            _this.game.load.audio('theme', 'assets/theme.ogg');
         };
         this.create = function () {
+            var music = _this.game.add.audio('theme', 1, true);
+            music.play();
             var background = _this.game.add.sprite(0, 288, 'space');
             var backgroundClouds = _this.game.add.sprite(0, 0, 'clouds');
             _this.deity = _this.game.add.sprite(-10, 100, 'dude');
